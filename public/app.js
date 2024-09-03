@@ -1,4 +1,4 @@
-const apiUrl = 'https://your-render-url.com'; // Replace with your Render URL
+const apiUrl = 'https://francisco-inventory.onrender.com'; // Replace with your Render URL
 
 async function fetchProducts() {
     try {
