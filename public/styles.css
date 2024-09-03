@@ -1,60 +1,97 @@
+/* General Styles */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f7f7f7;
+  color: #333;
   margin: 0;
   padding: 0;
 }
 
+/* Background Image for the Body 
+.background {
+  background-image: url('https://your-background-image-url.jpg'); /* Replace with your actual image URL */
+  /*background-size: cover;
+  background-position: center;
+  background-attachment: fixed;/*
+  color: #fff; /* Adjust text color for better readability */
+/*}*/
+
+/* Header Styling */
 header {
-  background-image: url('your-image-url'); /* Replace with your image URL */
-  background-size: cover;
   text-align: center;
-  padding: 20px;
-  color: white;
-  font-size: 2em;
-}
-
-.container {
-  max-width: 800px;
-  margin: 40px auto;
-  background-color: white;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
-
-form {
-  display: flex;
-  gap: 10px;
+  padding: 45px;
+  background-image: url(https://i.imgur.com/399WzL6.jpeg); /* Replace with your header image URL */
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for better text visibility */
+  color: #fff; /* Text color in the header */
   margin-bottom: 20px;
+  font-size: 25px;
+  font-weight: bold;
+  color: gold;
 }
 
-input, button {
+/* Form Styling */
+form {
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for forms */
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 500px;
+  border-radius: 10px;
+}
+
+input {
+  display: block;
+  width: calc(100% - 22px);
+  margin: 10px auto;
   padding: 10px;
-  font-size: 1em;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
+button {
+  background-color: #f76c6c; /* Bright button color */
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #f74c3d;
+}
+
+/* Table Styling */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin: 20px auto;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for the table */
 }
 
 th, td {
   padding: 10px;
-  text-align: center;
+  text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
 th {
-  background-color: #f0f0f0;
+  background-color: #444;
+  color: #fff;
 }
 
-.actions button {
-  margin: 0 5px;
-  padding: 5px 10px;
+td {
+  color: #fff;
 }
 
-tfoot td {
-  font-weight: bold;
+/* Total Value Display */
+#totalValue {
+  text-align: center;
+  font-size: 1.2em;
+  margin-top: 20px;
+  color: #000000; /* Adjust if needed */
+}
+
+table td:first-child {
+  text-transform: capitalize;
 }
