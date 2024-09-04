@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management - Francisco is Cooking for You</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the external CSS file -->
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Inventory Management</a>
+            <a href="employees.html">Employee Management</a>
+        </nav>
+        Francisco is Cooking for You
+    </header>
+    
+    <div class="container">
+        <!-- Form to add/edit employees -->
+        <form id="employee-form">
+            <input type="text" id="employee-name" placeholder="Employee Name" required>
+            <input type="number" id="weekly-pay" placeholder="Weekly Pay" min="0" step="0.01" required>
+            <button type="submit" id="add-employee-btn">Add Employee</button>
+            <button type="button" id="update-employee-btn" style="display: none;">Update Employee</button>
+            <button type="button" id="cancel-employee-btn" style="display: none;">Cancel</button>
+        </form>
+        
+        <!-- Table to display employees -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Weekly Pay</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="employee-list"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="1">Total Pay:</td>
+                    <td id="total-pay">$0.00</td> <!-- Total Pay -->
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script src="employee.js"></script>
+</body>
+</html>
