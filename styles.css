@@ -108,3 +108,21 @@ td {
 table td:first-child {
   text-transform: capitalize;
 }
+
+#grand-total, #total-pay {
+  text-align: center;
+  font-size: 2em; /* Larger font size */
+  font-weight: bold; /* Bold text */
+  margin-top: 20px; /* Space above */
+  padding: 10px; /* Space inside */
+  color: #fff; /* Text color */
+  background-color: #f76c6c; /* Background color */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+
+}
+
+.total-text{
+  font-weight: bold;
+  font-size: 25px;
+}
