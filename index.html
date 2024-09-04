@@ -13,13 +13,19 @@
     </header>
     
     <div class="container">
+        <!-- Form to add new products -->
         <form id="product-form">
             <input type="text" id="name" placeholder="Product Name" required>
             <input type="number" id="price" placeholder="Price" min="0" step="0.01" required>
             <input type="number" id="quantity" placeholder="Quantity" min="0" step="1" required>
-            <button type="submit">Add Product</button>
+            <button type="submit" id="add-btn">Add Product</button>
+            <button type="button" id="update-btn" style="display: none;">Update Product</button>
+            <button type="button" id="cancel-btn" style="display: none;">Cancel</button>
         </form>
+        
+        
 
+        <!-- Table to display products -->
         <table>
             <thead>
                 <tr>
@@ -39,6 +45,16 @@
                 </tr>
             </tfoot>
         </table>
+
+        <!-- Form to edit products -->
+        <div id="edit-form" style="display:none;">
+            <h3>Edit Product</h3>
+            <input type="text" id="edit-name" placeholder="Product Name" required>
+            <input type="number" id="edit-price" placeholder="Price" min="0" step="0.01" required>
+            <input type="number" id="edit-quantity" placeholder="Quantity" min="0" step="1" required>
+            <button id="save-edit">Save</button>
+            <button id="cancel-edit">Cancel</button>
+        </div>
     </div>
 
     <script src="app.js"></script>
