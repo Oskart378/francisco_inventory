@@ -9,7 +9,7 @@ body {
 /* Header Styling */
 header {
   text-align: center;
-  padding: 45px;
+  padding: 45px 0; /* Adjusted padding */
   background-image: url(https://i.imgur.com/399WzL6.jpeg); /* Replace with your header image URL */
   background-size: cover;
   background-position: center;
@@ -24,8 +24,9 @@ header {
 /* Navigation Styling */
 nav {
   background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for navigation */
-  padding: 10px;
+  padding: 10px 0; /* Adjusted padding */
   text-align: center;
+  margin: 0; /* Ensure no extra margin is added */
 }
 
 nav a {
