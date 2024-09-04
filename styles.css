@@ -6,15 +6,6 @@ body {
   padding: 0;
 }
 
-/* Background Image for the Body 
-.background {
-  background-image: url('https://your-background-image-url.jpg'); /* Replace with your actual image URL */
-  /*background-size: cover;
-  background-position: center;
-  background-attachment: fixed;/*
-  color: #fff; /* Adjust text color for better readability */
-/*}*/
-
 /* Header Styling */
 header {
   text-align: center;
@@ -28,6 +19,27 @@ header {
   font-size: 25px;
   font-weight: bold;
   color: rgb(255, 255, 255);
+}
+
+/* Navigation Styling */
+nav {
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for navigation */
+  padding: 10px;
+  text-align: center;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 20px;
+  display: inline-block;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: #f76c6c; /* Color on hover */
+  border-radius: 5px;
 }
 
 /* Form Styling */
