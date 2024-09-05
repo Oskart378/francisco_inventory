@@ -36,10 +36,17 @@ document.getElementById('employee-form').addEventListener('submit', async (e) =>
     e.preventDefault();
     
     const name = document.getElementById('employee-name').value.trim();
-    const weeklyPay = parseFloat(document.getElementById('weekly-pay').value);
+    const weeklyPay = document.getElementById('weekly-pay').value.trim();
 
-    if (!name || weeklyPay < 0) {
-        alert('Please enter valid employee details.');
+    if (!name) {
+        alert('Please enter a valid employee name.');
+        return;
+    }
+
+    // Validate that weekly pay is a positive number
+    const weeklyPayNumber = parseFloat(weeklyPay);
+    if (isNaN(weeklyPayNumber) || weeklyPayNumber < 0) {
+        alert('Please enter a valid number for Weekly Pay.');
         return;
     }
 
@@ -50,7 +57,7 @@ document.getElementById('employee-form').addEventListener('submit', async (e) =>
         const response = await fetch(url, {
             method: method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, weeklyPay })
+            body: JSON.stringify({ name, weeklyPay: weeklyPayNumber })
         });
 
         if (!response.ok) throw new Error(`Failed to ${currentEmployeeId ? 'update' : 'add'} employee`);
