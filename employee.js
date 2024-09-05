@@ -1,4 +1,4 @@
-const apiUrl = 'https://francisco-inventory-1.onrender.com'; // Update to your API endpoint
+const apiUrl = 'https://francisco-inventory.onrender.com'; // Update to your API endpoint
 let currentEmployeeId = null;
 
 async function fetchEmployees() {
