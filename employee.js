@@ -1,9 +1,12 @@
-const apiUrl = 'https://francisco-inventory.onrender.com'; // Update to your API endpoint
+const apiUrl = 'https://francisco-inventory-2.onrender.com'; // Updated to your API endpoint
 let currentEmployeeId = null;
+let token = localStorage.getItem('token'); // Retrieve the token from localStorage
 
 async function fetchEmployees() {
     try {
-        const response = await fetch(`${apiUrl}/employees`);
+        const response = await fetch(`${apiUrl}/employees`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const employees = await response.json();
         const employeeList = document.getElementById('employee-list');
         const totalPayElement = document.getElementById('total-pay');
@@ -35,16 +38,16 @@ async function fetchEmployees() {
 document.getElementById('employee-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const name = document.getElementById('employee-name').value.trim();
+    const name = document.getElementById('name').value.trim();
     const weeklyPay = document.getElementById('weekly-pay').value.trim();
 
-    if (!name) {
-        alert('Please enter a valid employee name.');
+    if (!name || !weeklyPay) {
+        alert('Please fill out all fields.');
         return;
     }
 
-    // Validate that weekly pay is a positive number
     const weeklyPayNumber = parseFloat(weeklyPay);
+
     if (isNaN(weeklyPayNumber) || weeklyPayNumber < 0) {
         alert('Please enter a valid number for Weekly Pay.');
         return;
@@ -56,7 +59,10 @@ document.getElementById('employee-form').addEventListener('submit', async (e) =>
 
         const response = await fetch(url, {
             method: method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({ name, weeklyPay: weeklyPayNumber })
         });
 
@@ -71,45 +77,47 @@ document.getElementById('employee-form').addEventListener('submit', async (e) =>
 
 function startEditEmployee(id, name, weeklyPay) {
     currentEmployeeId = id;
-    document.getElementById('employee-name').value = name;
+    document.getElementById('name').value = name;
     document.getElementById('weekly-pay').value = weeklyPay;
 
-    document.getElementById('add-employee-btn').style.display = 'none';
-    document.getElementById('update-employee-btn').style.display = 'inline-block';
-    document.getElementById('cancel-employee-btn').style.display = 'inline-block';
+    document.getElementById('add-btn').style.display = 'none';
+    document.getElementById('update-btn').style.display = 'inline-block';
+    document.getElementById('cancel-btn').style.display = 'inline-block';
 }
 
 // Ensure the form will submit when clicking the 'Update' button
-document.getElementById('update-employee-btn').addEventListener('click', (e) => {
+document.getElementById('update-btn').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('employee-form').dispatchEvent(new Event('submit'));
 });
 
 function resetForm() {
     currentEmployeeId = null;
-    document.getElementById('employee-name').value = '';
+    document.getElementById('name').value = '';
     document.getElementById('weekly-pay').value = '';
-
-    document.getElementById('add-employee-btn').style.display = 'inline-block';
-    document.getElementById('update-employee-btn').style.display = 'none';
-    document.getElementById('cancel-employee-btn').style.display = 'none';
+    
+    document.getElementById('add-btn').style.display = 'inline-block';
+    document.getElementById('update-btn').style.display = 'none';
+    document.getElementById('cancel-btn').style.display = 'none';
 }
-
-document.getElementById('cancel-employee-btn').addEventListener('click', resetForm);
 
 async function deleteEmployee(id) {
     try {
         const response = await fetch(`${apiUrl}/employees/${id}`, {
             method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) throw new Error('Failed to delete employee');
-
         fetchEmployees();
     } catch (error) {
         console.error('Error deleting employee:', error);
     }
 }
 
-// Initial fetch of employees when the page loads
-fetchEmployees();
+document.getElementById('cancel-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    resetForm();
+});
+
+document.addEventListener('DOMContentLoaded', fetchEmployees);

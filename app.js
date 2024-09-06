@@ -1,14 +1,10 @@
-const apiUrl = 'https://francisco-inventory-2.onrender.com/api/products';
+const apiUrl = 'https://francisco-inventory-2.onrender.com'; // Updated to your API endpoint
 let currentProductId = null;
-const token = localStorage.getItem('token');
-
-if (!token) {
-    window.location.href = 'login.html'; // Redirect to login if not authenticated
-}
+let token = localStorage.getItem('token'); // Retrieve the token from localStorage
 
 async function fetchProducts() {
     try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(`${apiUrl}/products`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const products = await response.json();
@@ -44,41 +40,43 @@ async function fetchProducts() {
 
 document.getElementById('product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    
     const name = document.getElementById('name').value.trim();
-    const price = parseFloat(document.getElementById('price').value);
-    const quantity = parseInt(document.getElementById('quantity').value, 10);
+    const price = document.getElementById('price').value.trim();
+    const quantity = document.getElementById('quantity').value.trim();
 
-    if (!name || isNaN(price) || isNaN(quantity)) {
-        alert('Please fill in all fields correctly.');
+    if (!name || !price || !quantity) {
+        alert('Please fill out all fields.');
+        return;
+    }
+
+    const priceNumber = parseFloat(price);
+    const quantityNumber = parseInt(quantity);
+
+    if (isNaN(priceNumber) || isNaN(quantityNumber) || priceNumber < 0 || quantityNumber < 0) {
+        alert('Please enter valid numbers for Price and Quantity.');
         return;
     }
 
     try {
-        if (currentProductId) {
-            await fetch(`${apiUrl}/${currentProductId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name, price, quantity })
-            });
-        } else {
-            await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name, price, quantity })
-            });
-        }
+        const method = currentProductId ? 'PUT' : 'POST';
+        const url = currentProductId ? `${apiUrl}/products/${currentProductId}` : `${apiUrl}/products`;
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ name, price: priceNumber, quantity: quantityNumber })
+        });
+
+        if (!response.ok) throw new Error(`Failed to ${currentProductId ? 'update' : 'add'} product`);
 
         resetForm();
         fetchProducts();
     } catch (error) {
-        console.error('Error adding/updating product:', error);
+        console.error(`Error ${currentProductId ? 'updating' : 'adding'} product:`, error);
     }
 });
 
@@ -93,31 +91,40 @@ function startEditProduct(id, name, price, quantity) {
     document.getElementById('cancel-btn').style.display = 'inline-block';
 }
 
+// Ensure the form will submit when clicking the 'Update' button
+document.getElementById('update-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('product-form').dispatchEvent(new Event('submit'));
+});
+
+function resetForm() {
+    currentProductId = null;
+    document.getElementById('name').value = '';
+    document.getElementById('price').value = '';
+    document.getElementById('quantity').value = '';
+    
+    document.getElementById('add-btn').style.display = 'inline-block';
+    document.getElementById('update-btn').style.display = 'none';
+    document.getElementById('cancel-btn').style.display = 'none';
+}
+
 async function deleteProduct(id) {
     try {
-        await fetch(`${apiUrl}/${id}`, {
+        const response = await fetch(`${apiUrl}/products/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        if (!response.ok) throw new Error('Failed to delete product');
         fetchProducts();
     } catch (error) {
         console.error('Error deleting product:', error);
     }
 }
 
-document.getElementById('cancel-btn').addEventListener('click', () => {
+document.getElementById('cancel-btn').addEventListener('click', (e) => {
+    e.preventDefault();
     resetForm();
 });
 
-function resetForm() {
-    document.getElementById('product-form').reset();
-    currentProductId = null;
-
-    document.getElementById('add-btn').style.display = 'inline-block';
-    document.getElementById('update-btn').style.display = 'none';
-    document.getElementById('cancel-btn').style.display = 'none';
-}
-
-// Initial fetch of products when the page loads
-fetchProducts();
+document.addEventListener('DOMContentLoaded', fetchProducts);
