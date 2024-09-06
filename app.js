@@ -1,9 +1,16 @@
-const apiUrl = 'https://francisco-inventory.onrender.com';
+const apiUrl = 'https://francisco-inventory-2.onrender.com/api/products';
 let currentProductId = null;
+const token = localStorage.getItem('token');
+
+if (!token) {
+    window.location.href = 'login.html'; // Redirect to login if not authenticated
+}
 
 async function fetchProducts() {
     try {
-        const response = await fetch(`${apiUrl}/products`);
+        const response = await fetch(apiUrl, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const products = await response.json();
         const productList = document.getElementById('product-list');
         const grandTotalElement = document.getElementById('grand-total');
@@ -37,32 +44,41 @@ async function fetchProducts() {
 
 document.getElementById('product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const name = document.getElementById('name').value.trim();
     const price = parseFloat(document.getElementById('price').value);
-    const quantity = parseInt(document.getElementById('quantity').value);
+    const quantity = parseInt(document.getElementById('quantity').value, 10);
 
-    if (!name || isNaN(price) || price < 0 || isNaN(quantity) || quantity < 0) {
-        alert('Please enter valid product details.');
+    if (!name || isNaN(price) || isNaN(quantity)) {
+        alert('Please fill in all fields correctly.');
         return;
     }
 
     try {
-        const method = currentProductId ? 'PUT' : 'POST';
-        const url = currentProductId ? `${apiUrl}/products/${currentProductId}` : `${apiUrl}/products`;
-
-        const response = await fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, price, quantity })
-        });
-
-        if (!response.ok) throw new Error(`Failed to ${currentProductId ? 'update' : 'add'} product`);
+        if (currentProductId) {
+            await fetch(`${apiUrl}/${currentProductId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, price, quantity })
+            });
+        } else {
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, price, quantity })
+            });
+        }
 
         resetForm();
         fetchProducts();
     } catch (error) {
-        console.error(`Error ${currentProductId ? 'updating' : 'adding'} product:`, error);
+        console.error('Error adding/updating product:', error);
     }
 });
 
@@ -77,36 +93,30 @@ function startEditProduct(id, name, price, quantity) {
     document.getElementById('cancel-btn').style.display = 'inline-block';
 }
 
-document.getElementById('update-btn').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('product-form').dispatchEvent(new Event('submit'));
-});
-
-function resetForm() {
-    currentProductId = null;
-    document.getElementById('name').value = '';
-    document.getElementById('price').value = '';
-    document.getElementById('quantity').value = '';
-
-    document.getElementById('add-btn').style.display = 'inline-block';
-    document.getElementById('update-btn').style.display = 'none';
-    document.getElementById('cancel-btn').style.display = 'none';
-}
-
-document.getElementById('cancel-btn').addEventListener('click', resetForm);
-
 async function deleteProduct(id) {
     try {
-        const response = await fetch(`${apiUrl}/products/${id}`, {
+        await fetch(`${apiUrl}/${id}`, {
             method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (!response.ok) throw new Error('Failed to delete product');
 
         fetchProducts();
     } catch (error) {
         console.error('Error deleting product:', error);
     }
+}
+
+document.getElementById('cancel-btn').addEventListener('click', () => {
+    resetForm();
+});
+
+function resetForm() {
+    document.getElementById('product-form').reset();
+    currentProductId = null;
+
+    document.getElementById('add-btn').style.display = 'inline-block';
+    document.getElementById('update-btn').style.display = 'none';
+    document.getElementById('cancel-btn').style.display = 'none';
 }
 
 // Initial fetch of products when the page loads
