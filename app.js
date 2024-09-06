@@ -68,54 +68,32 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
 function startEditProduct(id, name, price, quantity) {
     currentProductId = id;
-    document.getElementById('edit-name').value = name;
-    document.getElementById('edit-price').value = price;
-    document.getElementById('edit-quantity').value = quantity;
+    document.getElementById('name').value = name;
+    document.getElementById('price').value = price;
+    document.getElementById('quantity').value = quantity;
 
-    document.getElementById('edit-form').style.display = 'block';
-    document.getElementById('product-form').style.display = 'none';
+    document.getElementById('add-btn').style.display = 'none';
+    document.getElementById('update-btn').style.display = 'inline-block';
+    document.getElementById('cancel-btn').style.display = 'inline-block';
 }
 
-document.getElementById('save-edit').addEventListener('click', async () => {
-    const name = document.getElementById('edit-name').value.trim();
-    const price = parseFloat(document.getElementById('edit-price').value);
-    const quantity = parseInt(document.getElementById('edit-quantity').value);
-
-    if (!name || isNaN(price) || price < 0 || isNaN(quantity) || quantity < 0) {
-        alert('Please enter valid product details.');
-        return;
-    }
-
-    try {
-        const response = await fetch(`${apiUrl}/products/${currentProductId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, price, quantity })
-        });
-
-        if (!response.ok) throw new Error('Failed to update product');
-
-        resetForm();
-        fetchProducts();
-    } catch (error) {
-        console.error('Error updating product:', error);
-    }
+document.getElementById('update-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('product-form').dispatchEvent(new Event('submit'));
 });
-
-document.getElementById('cancel-edit').addEventListener('click', resetForm);
 
 function resetForm() {
     currentProductId = null;
     document.getElementById('name').value = '';
     document.getElementById('price').value = '';
     document.getElementById('quantity').value = '';
-    document.getElementById('edit-name').value = '';
-    document.getElementById('edit-price').value = '';
-    document.getElementById('edit-quantity').value = '';
 
-    document.getElementById('product-form').style.display = 'block';
-    document.getElementById('edit-form').style.display = 'none';
+    document.getElementById('add-btn').style.display = 'inline-block';
+    document.getElementById('update-btn').style.display = 'none';
+    document.getElementById('cancel-btn').style.display = 'none';
 }
+
+document.getElementById('cancel-btn').addEventListener('click', resetForm);
 
 async function deleteProduct(id) {
     try {

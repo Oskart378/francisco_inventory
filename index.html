@@ -17,7 +17,7 @@
     </header>
     
     <div class="container">
-        <!-- Form to add new products -->
+        <!-- Form to add/edit products -->
         <form id="product-form">
             <input type="text" id="name" placeholder="Product Name" required>
             <input type="number" id="price" placeholder="Price" min="0" step="0.01" required>
@@ -47,16 +47,6 @@
                 </tr>
             </tfoot>
         </table>
-
-        <!-- Form to edit products -->
-        <div id="edit-form" style="display:none;">
-            <h3>Edit Product</h3>
-            <input type="text" id="edit-name" placeholder="Product Name" required>
-            <input type="number" id="edit-price" placeholder="Price" min="0" step="0.01" required>
-            <input type="number" id="edit-quantity" placeholder="Quantity" min="0" step="1" required>
-            <button id="save-edit">Save</button>
-            <button id="cancel-edit">Cancel</button>
-        </div>
     </div>
 
     <script src="app.js"></script>
