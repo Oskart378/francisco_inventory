@@ -1,155 +1,135 @@
-const apiUrl = 'https://francisco-inventory-2.onrender.com'; // Update to your API endpoint
+const apiUrl = 'https://francisco-inventory-2.onrender.com';
+let currentProductId = null;
 
-// Check for authentication
-const token = localStorage.getItem('token');
-
-if (!token) {
-    // Redirect to login if not authenticated
-    window.location.href = 'login.html';
-}
-
+// Fetch products and display them
 async function fetchProducts() {
     try {
+        const token = localStorage.getItem('token');
         const response = await fetch(`${apiUrl}/products`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const products = await response.json();
-        displayProducts(products);
+        const productList = document.getElementById('product-list');
+        const grandTotalElement = document.getElementById('grand-total');
+        let grandTotal = 0;
+
+        productList.innerHTML = '';
+
+        products.forEach(product => {
+            const total = product.price * product.quantity;
+            grandTotal += total;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${product.name.charAt(0).toUpperCase() + product.name.slice(1)}</td>
+                <td>$${product.price.toFixed(2)}</td>
+                <td>${product.quantity}</td>
+                <td>$${total.toFixed(2)}</td>
+                <td class="actions">
+                    <button onclick="startEditProduct('${product._id}', '${product.name}', ${product.price}, ${product.quantity})">Edit</button>
+                    <button onclick="deleteProduct('${product._id}')">Delete</button>
+                </td>
+            `;
+            productList.appendChild(tr);
+        });
+
+        grandTotalElement.textContent = `$${grandTotal.toFixed(2)}`;
     } catch (error) {
-        console.error('Failed to fetch products', error);
+        console.error('Error fetching products:', error);
     }
 }
 
-async function addProduct(product) {
+// Handle form submission to add or update products
+document.getElementById('product-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value.trim();
+    const price = parseFloat(document.getElementById('price').value);
+    const quantity = parseInt(document.getElementById('quantity').value);
+
+    if (!name || price < 0 || quantity < 0) {
+        alert('Please enter valid product details.');
+        return;
+    }
+
     try {
-        const response = await fetch(`${apiUrl}/products`, {
-            method: 'POST',
+        const token = localStorage.getItem('token');
+        const method = currentProductId ? 'PUT' : 'POST';
+        const url = currentProductId ? `${apiUrl}/products/${currentProductId}` : `${apiUrl}/products`;
+
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(product)
+            body: JSON.stringify({ name, price, quantity })
         });
-        const newProduct = await response.json();
-        // Refresh product list after adding
+
+        if (!response.ok) throw new Error(`Failed to ${currentProductId ? 'update' : 'add'} product`);
+
+        resetForm();
         fetchProducts();
     } catch (error) {
-        console.error('Failed to add product', error);
+        console.error(`Error ${currentProductId ? 'updating' : 'adding'} product:`, error);
     }
+});
+
+// Start editing a product
+function startEditProduct(id, name, price, quantity) {
+    currentProductId = id;
+    document.getElementById('name').value = name;
+    document.getElementById('price').value = price;
+    document.getElementById('quantity').value = quantity;
+
+    document.getElementById('add-btn').style.display = 'none';
+    document.getElementById('update-btn').style.display = 'inline-block';
+    document.getElementById('cancel-btn').style.display = 'inline-block';
 }
 
-async function updateProduct(id, product) {
-    try {
-        const response = await fetch(`${apiUrl}/products/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(product)
-        });
-        const updatedProduct = await response.json();
-        // Refresh product list after updating
-        fetchProducts();
-    } catch (error) {
-        console.error('Failed to update product', error);
-    }
+// Ensure the form will submit when clicking the 'Update' button
+document.getElementById('update-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('product-form').dispatchEvent(new Event('submit'));
+});
+
+// Reset form fields and buttons
+function resetForm() {
+    currentProductId = null;
+    document.getElementById('name').value = '';
+    document.getElementById('price').value = '';
+    document.getElementById('quantity').value = '';
+
+    document.getElementById('add-btn').style.display = 'inline-block';
+    document.getElementById('update-btn').style.display = 'none';
+    document.getElementById('cancel-btn').style.display = 'none';
 }
 
+// Handle cancel button click
+document.getElementById('cancel-btn').addEventListener('click', resetForm);
+
+// Delete a product
 async function deleteProduct(id) {
     try {
-        await fetch(`${apiUrl}/products/${id}`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${apiUrl}/products/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        // Refresh product list after deleting
+
+        if (!response.ok) throw new Error('Failed to delete product');
+
         fetchProducts();
     } catch (error) {
-        console.error('Failed to delete product', error);
+        console.error('Error deleting product:', error);
     }
 }
 
-function displayProducts(products) {
-    const productList = document.getElementById('product-list');
-    const grandTotalElement = document.getElementById('grand-total');
+// Handle logout
+document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
+});
 
-    productList.innerHTML = '';
-    let grandTotal = 0;
-
-    products.forEach(product => {
-        const total = (product.price * product.quantity).toFixed(2);
-        grandTotal += parseFloat(total);
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${product.name}</td>
-            <td>$${product.price.toFixed(2)}</td>
-            <td>${product.quantity}</td>
-            <td>$${total}</td>
-            <td>
-                <button onclick="editProduct('${product._id}')">Edit</button>
-                <button onclick="deleteProduct('${product._id}')">Delete</button>
-            </td>
-        `;
-        productList.appendChild(row);
-    });
-
-    grandTotalElement.textContent = `$${grandTotal.toFixed(2)}`;
-}
-
-function setupFormHandlers() {
-    const form = document.getElementById('product-form');
-    const addButton = document.getElementById('add-btn');
-    const updateButton = document.getElementById('update-btn');
-    const cancelButton = document.getElementById('cancel-btn');
-    let editingProductId = null;
-
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        
-        const name = document.getElementById('name').value;
-        const price = parseFloat(document.getElementById('price').value);
-        const quantity = parseInt(document.getElementById('quantity').value, 10);
-
-        if (editingProductId) {
-            updateProduct(editingProductId, { name, price, quantity });
-            editingProductId = null;
-        } else {
-            addProduct({ name, price, quantity });
-        }
-
-        form.reset();
-        addButton.style.display = 'block';
-        updateButton.style.display = 'none';
-        cancelButton.style.display = 'none';
-    });
-
-    cancelButton.addEventListener('click', () => {
-        form.reset();
-        addButton.style.display = 'block';
-        updateButton.style.display = 'none';
-        cancelButton.style.display = 'none';
-    });
-}
-
-function editProduct(id) {
-    fetch(`${apiUrl}/products/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(response => response.json())
-    .then(product => {
-        document.getElementById('name').value = product.name;
-        document.getElementById('price').value = product.price;
-        document.getElementById('quantity').value = product.quantity;
-
-        document.getElementById('add-btn').style.display = 'none';
-        document.getElementById('update-btn').style.display = 'block';
-        document.getElementById('cancel-btn').style.display = 'block';
-        
-        window.editingProductId = id;
-    })
-    .catch(error => console.error('Failed to load product for editing', error));
-}
-
-setupFormHandlers();
+// Initial fetch of products when the page loads
 fetchProducts();

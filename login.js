@@ -1,4 +1,4 @@
-const apiUrl = 'https://francisco-inventory-2.onrender.com'; // Update to your API endpoint
+const apiUrl = 'https://francisco-inventory-2.onrender.com';
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
