@@ -51,5 +51,14 @@
     </div>
 
     <script src="app.js"></script>
+
+    <script>
+        const token = localStorage.getItem('token');
+        
+        // If there's no token, redirect to the login page
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+    </script>
 </body>
 </html>
