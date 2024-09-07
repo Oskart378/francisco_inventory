@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return; // Prevent further execution
     }
 
-    const apiUrl = 'https://francisco-inventory-2.onrender.com'; // Update to your API endpoint
+    const apiUrl = 'https://francisco-inventory.onrender.com'; // Update to your API endpoint
     let currentEmployeeId = null;
 
     fetchEmployees();

@@ -1,4 +1,4 @@
-const apiUrl = 'https://francisco-inventory-2.onrender.com';
+const apiUrl = 'https://francisco-inventory.onrender.com';
 let currentProductId = null;
 
 document.addEventListener('DOMContentLoaded', () => {

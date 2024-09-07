@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('actions-header').style.display = 'none'; // Hide actions column header
     }
 
-    const apiUrl = 'https://francisco-inventory-2.onrender.com';
+    const apiUrl = 'https://francisco-inventory.onrender.com';
     let currentSoupId = null;
 
     // Fetch soups and display them
