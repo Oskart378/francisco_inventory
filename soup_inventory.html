@@ -1,34 +1,35 @@
+<!-- soup_inventory.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Inventory - Francisco is Cooking for You</title>
+    <title>Soup Inventory - Francisco is Cooking for You</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to the external CSS file -->
 </head>
 <body>
     <header>
         <h1>Francisco is Cooking for You</h1>
         <nav>
-            <a href="index.html">Inventory Management</a>
+            <a href="soup_inventory.html">Soup Inventory</a>
             <a href="employees.html">Employee Management</a>
-            <button id="logout-btn">Logout</button> <!-- Logout button -->
+            <button id="logout-btn">Logout</button>
         </nav>
     </header>
     
     <div class="container">
-        <!-- Form to add/edit products -->
-        <form id="product-form">
-            <input type="text" id="name" placeholder="Product Name" required>
+        <!-- Form to add/edit soups -->
+        <form id="soup-form">
+            <input type="text" id="name" placeholder="Soup Name" required>
             <input type="number" id="price" placeholder="Price" min="0" step="0.01" required>
             <input type="number" id="quantity" placeholder="Quantity" min="0" step="1" required>
-            <button type="submit" id="add-btn">Add Product</button>
-            <button type="button" id="update-btn" style="display: none;">Update Product</button>
+            <button type="submit" id="add-btn">Add Soup</button>
+            <button type="button" id="update-btn" style="display: none;">Update Soup</button>
             <button type="button" id="cancel-btn" style="display: none;">Cancel</button>
         </form>
 
-        <!-- Table to display products -->
+        <!-- Table to display soups -->
         <table>
             <thead>
                 <tr>
@@ -39,7 +40,7 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="product-list"></tbody>
+            <tbody id="soup-list"></tbody>
             <tfoot>
                 <tr>
                     <td colspan="3" class="total-text">Grand Total:</td>
@@ -50,7 +51,7 @@
         </table>
     </div>
 
-    <script src="app.js"></script>
+    <script src="soup_inventory.js"></script>
 
     <script>
         const token = localStorage.getItem('token');

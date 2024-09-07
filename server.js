@@ -18,7 +18,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Failed to connect to MongoDB', err));
 
-// Product schema and model
+// Company Inventory schema and model
 const productSchema = new mongoose.Schema({
   name: String,
   price: Number,
@@ -26,6 +26,15 @@ const productSchema = new mongoose.Schema({
 });
 
 const Product = mongoose.model('Product', productSchema);
+
+// Soup Inventory schema and model
+const soupSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  quantity: Number,
+});
+
+const Soup = mongoose.model('Soup', soupSchema);
 
 // Employee schema and model
 const employeeSchema = new mongoose.Schema({
@@ -63,8 +72,18 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
-// Routes for Products
-app.get('/products', async (req, res) => {
+// Middleware for read-only access to soups
+const isReadOnly = (req, res, next) => {
+  if (req.user.role === 'admin') return next();
+  if (req.user.role === 'readonly') {
+    req.isReadOnly = true; // Set a flag to restrict access
+    return next();
+  }
+  return res.sendStatus(403);
+};
+
+// Routes for Company Inventory (Products)
+app.get('/products', authenticateToken, async (req, res) => {
   try {
     const products = await Product.find();
     res.json(products);
@@ -101,8 +120,46 @@ app.delete('/products/:id', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
+// Routes for Soup Inventory
+app.get('/soups', authenticateToken, isReadOnly, async (req, res) => {
+  try {
+    const soups = await Soup.find();
+    res.json(soups);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch soups' });
+  }
+});
+
+app.post('/soups', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const newSoup = new Soup(req.body);
+    await newSoup.save();
+    res.status(201).json(newSoup);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add soup' });
+  }
+});
+
+app.put('/soups/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const soup = await Soup.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(soup);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update soup' });
+  }
+});
+
+app.delete('/soups/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    await Soup.findByIdAndDelete(req.params.id);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete soup' });
+  }
+});
+
 // Routes for Employees
-app.get('/employees', async (req, res) => {
+app.get('/employees', authenticateToken, async (req, res) => {
   try {
     const employees = await Employee.find();
     res.json(employees);
