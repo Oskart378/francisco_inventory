@@ -1,4 +1,3 @@
-<!-- soup_inventory.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,9 +11,10 @@
     <header>
         <h1>Francisco is Cooking for You</h1>
         <nav>
-            <a href="soup_inventory.html">Soup Inventory</a>
+            <a href="index.html">Company Inventory</a>
+            <a href="soup_inventory.html">Soup Inventory</a> <!-- New link for Soup Inventory -->
             <a href="employees.html">Employee Management</a>
-            <button id="logout-btn">Logout</button>
+            <button id="logout-btn">Logout</button> <!-- Logout button -->
         </nav>
     </header>
     
@@ -52,14 +52,5 @@
     </div>
 
     <script src="soup_inventory.js"></script>
-
-    <script>
-        const token = localStorage.getItem('token');
-        
-        // If there's no token, redirect to the login page
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-    </script>
 </body>
 </html>

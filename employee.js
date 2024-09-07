@@ -4,6 +4,7 @@ let currentEmployeeId = null;
 document.addEventListener('DOMContentLoaded', () => {
     fetchEmployees();
     setupFormHandlers();
+    setupLogoutHandler(); // Add this function
 });
 
 function getAuthHeader() {
@@ -90,6 +91,14 @@ function setupFormHandlers() {
     });
 
     document.getElementById('cancel-employee-btn').addEventListener('click', resetForm);
+}
+
+function setupLogoutHandler() {
+    const logoutBtn = document.getElementById('logout-btn');
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html'; // Redirect to login page or home page
+    });
 }
 
 function startEditEmployee(id, name, weeklyPay) {
