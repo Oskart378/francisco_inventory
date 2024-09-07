@@ -5,13 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soup Inventory - Francisco is Cooking for You</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the external CSS file -->
 </head>
 <body>
     <header>
         <h1>Francisco is Cooking for You</h1>
         <nav id="nav">
-            <!-- Links will be injected by script -->
+            <!-- Navigation links will be injected by nav.js -->
         </nav>
     </header>
     
@@ -34,7 +34,7 @@
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Total</th>
-                    <th>Actions</th>
+                    <th id="actions-header">Actions</th>
                 </tr>
             </thead>
             <tbody id="soup-list"></tbody>
@@ -47,7 +47,6 @@
             </tfoot>
         </table>
     </div>
-
     <script src="nav.js"></script>
     <script src="soup_inventory.js"></script>
 </body>
