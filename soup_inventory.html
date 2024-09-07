@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soup Inventory - Francisco is Cooking for You</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to the external CSS file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <header>
@@ -13,15 +14,16 @@
         <nav id="nav">
             <!-- Navigation links will be injected by nav.js -->
         </nav>
+        <button id="download-btn">Download as Excel</button>
     </header>
     
     <div class="container">
         <!-- Form to add/edit soups -->
         <form id="soup-form">
-            <input type="text" id="name" placeholder="Soup Name" required>
+            <input type="text" id="name" placeholder="Product Name" required>
             <input type="number" id="price" placeholder="Price" min="0" step="0.01" required>
             <input type="number" id="quantity" placeholder="Quantity" min="0" step="1" required>
-            <button type="submit" id="add-btn">Add Soup</button>
+            <button type="submit" id="add-btn">Add Product</button>
             <button type="button" id="update-btn" style="display: none;">Update Soup</button>
             <button type="button" id="cancel-btn" style="display: none;">Cancel</button>
         </form>
@@ -49,5 +51,80 @@
     </div>
     <script src="nav.js"></script>
     <script src="soup_inventory.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const downloadBtn = document.getElementById('download-btn');
+    
+            downloadBtn.addEventListener('click', () => {
+                // Create a new workbook
+                const wb = XLSX.utils.book_new();
+    
+                // Get table data
+                const table = document.querySelector('table');
+                const rows = Array.from(table.querySelectorAll('tr'));
+    
+                // Create a new array to hold table data without the Actions column
+                const dataWithoutActions = rows.map(row => {
+                    const cells = Array.from(row.querySelectorAll('td, th'));
+                    // Remove the last cell (Actions column) if it exists
+                    cells.pop();
+                    return cells.map(cell => cell.textContent.trim());
+                });
+    
+                // Calculate Grand Total
+                const grandTotalElement = document.getElementById('grand-total');
+                const grandTotal = grandTotalElement ? grandTotalElement.textContent.trim() : '$0.00';
+    
+                // Create a worksheet from the processed data
+                const ws = XLSX.utils.aoa_to_sheet(dataWithoutActions);
+    
+                // Set column widths
+                ws['!cols'] = [
+                    { width: 30 }, // Adjust width for the Name column
+                    { width: 15 }, // Adjust width for the Price column
+                    { width: 10 }, // Adjust width for the Quantity column
+                    { width: 15 }  // Adjust width for the Total column
+                ];
+    
+                // Add "Grand Total" row to the worksheet
+                const totalRowIndex = dataWithoutActions.length + 1; // Add one for the grand total row
+    
+                ws[`A${totalRowIndex + 1}`] = {
+                    v: 'Grand Total:',
+                    s: {
+                        font: { bold: true, sz: 14 } // Bold and larger font size for "Grand Total"
+                    }
+                };
+    
+                ws[`D${totalRowIndex + 1}`] = {
+                    v: grandTotal, // Grand total number
+                    s: {
+                        font: { bold: true, sz: 16 } // Bold and larger font size for grand total number
+                    }
+                };
+    
+                // Append the sheet to the workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'Products');
+    
+                // Generate binary data and create a blob
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+                const buf = new ArrayBuffer(wbout.length);
+                const view = new Uint8Array(buf);
+                for (let i = 0; i < wbout.length; i++) view[i] = wbout.charCodeAt(i) & 0xFF;
+                const blob = new Blob([buf], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+    
+                // Create a download link and trigger the download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'company_inventory.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // Clean up the URL object
+            });
+        });
+    </script>
 </body>
 </html>
