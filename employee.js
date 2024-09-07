@@ -115,6 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('add-employee-btn').style.display = 'none';
         document.getElementById('update-employee-btn').style.display = 'inline-block';
         document.getElementById('cancel-employee-btn').style.display = 'inline-block';
+
+        document.getElementById('employee-name').focus();
+        document.getElementById('employee-name').setSelectionRange(0, 0);
     }
 
     function resetForm() {

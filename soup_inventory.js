@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Start editing a soup
-    function startEditSoup(id, name, price, quantity) {
+    window.startEditSoup = function(id, name, price, quantity) {
         if (role === 'readonly') return; // Prevent editing for readonly users
         currentSoupId = id;
         document.getElementById('name').value = name;
@@ -104,6 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('add-btn').style.display = 'none';
         document.getElementById('update-btn').style.display = 'inline-block';
         document.getElementById('cancel-btn').style.display = 'inline-block';
+
+        document.getElementById('name').focus();
+        document.getElementById('name').setSelectionRange(0, 0);
     }
 
     // Ensure the form will submit when clicking the 'Update' button
@@ -128,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancel-btn').addEventListener('click', resetForm);
 
     // Delete a soup
-    async function deleteSoup(id) {
+    window.deleteSoup = async function(id) {
         if (role === 'readonly') return; // Prevent deleting for readonly users
         try {
             const token = localStorage.getItem('token');
