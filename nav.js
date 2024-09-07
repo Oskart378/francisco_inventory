@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Remove links that are not relevant to readonly users
         nav.innerHTML = `
             <a href="soup_inventory.html">Soup Inventory</a>
-            <button id="logout-btn">Logout</button>
         `;
     } else {
         // Add links for admin or other roles
@@ -15,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="index.html">Company Inventory</a>
             <a href="soup_inventory.html">Soup Inventory</a>
             <a href="employees.html">Employee Management</a>
-            <button id="logout-btn">Logout</button>
         `;
     }
 
