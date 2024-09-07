@@ -5,16 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Management - Francisco is Cooking for You</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
         <h1>Francisco is Cooking for You</h1>
-        <nav>
-            <a href="index.html">Company Inventory</a>
-            <a href="soup_inventory.html">Soup Inventory</a> <!-- New link for Soup Inventory -->
-            <a href="employees.html">Employee Management</a>
-            <button id="logout-btn">Logout</button> <!-- Logout button -->
+        <nav id="nav">
+            <!-- Links will be injected by script -->
         </nav>
     </header>
     
@@ -41,13 +38,14 @@
             <tfoot>
                 <tr>
                     <td colspan="1" class="total-text">Total Pay:</td>
-                    <td id="total-pay">$0.00</td> <!-- Total Pay -->
+                    <td id="total-pay">$0.00</td>
                     <td></td>
                 </tr>
             </tfoot>
         </table>
     </div>
 
+    <script src="nav.js"></script>
     <script src="employee.js"></script>
 </body>
 </html>

@@ -1,5 +1,14 @@
 // soup_inventory.js
 
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('role');
+
+    // Redirect users who are not logged in
+    if (!role) {
+        window.location.href = 'login.html'; // Redirect to login page
+        return; // Stop further execution
+    }
+
 const apiUrl = 'https://francisco-inventory-2.onrender.com';
 let currentSoupId = null;
 
@@ -135,3 +144,5 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 
 // Initial fetch of soups when the page loads
 fetchSoups();
+
+});

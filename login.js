@@ -15,10 +15,21 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 
         if (!response.ok) throw new Error('Login failed');
 
-        const { token } = await response.json();
-        localStorage.setItem('token', token);
-        window.location.href = 'index.html'; // Redirect to inventory management page
+        const data = await response.json();
+        console.log('Login Response:', data); // Log full response
+
+        const token = data.token;
+        const role = data.role; // Check if role is present
+
+        if (token && role) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('role', role); // Store the role
+            window.location.href = 'index.html'; // Redirect to inventory management page
+        } else {
+            throw new Error('Invalid response data: role is missing');
+        }
     } catch (error) {
+        console.error('Login error:', error);
         document.getElementById('login-error').style.display = 'block';
     }
 });

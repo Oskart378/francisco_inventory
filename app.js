@@ -1,5 +1,13 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('role');
+    if (role === 'readonly') {
+        window.location.href = 'soup_inventory.html'; // Redirect readonly users
+    }
+
 const apiUrl = 'https://francisco-inventory-2.onrender.com';
 let currentProductId = null;
+
+
 
 // Fetch products and display them
 async function fetchProducts() {
@@ -133,3 +141,4 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 
 // Initial fetch of products when the page loads
 fetchProducts();
+});

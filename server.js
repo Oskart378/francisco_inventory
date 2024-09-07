@@ -218,8 +218,9 @@ app.post('/login', async (req, res) => {
   if (!validPassword) return res.status(400).json({ error: 'Invalid password' });
 
   const token = jwt.sign({ username: user.username, role: user.role }, JWT_SECRET);
-  res.json({ token });
+  res.json({ token, role: user.role }); // Include role in the response
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -1,3 +1,9 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('role');
+    if (role === 'readonly') {
+        window.location.href = 'soup_inventory.html'; // Redirect readonly users
+    }
+
 const apiUrl = 'https://francisco-inventory-2.onrender.com'; // Update to your API endpoint
 let currentEmployeeId = null;
 
@@ -135,3 +141,4 @@ async function deleteEmployee(id) {
         console.error('Error deleting employee:', error);
     }
 }
+});
