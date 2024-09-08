@@ -44,6 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const grandTotalElement = document.getElementById('grand-total');
             const grandTotal = grandTotalElement ? grandTotalElement.textContent.trim() : '$0.00';
 
+            // Get current date and format it
+            const currentDate = new Date().toLocaleDateString();
+            
+            // Insert the current date as the first row
+            dataWithOptionalActions.unshift([`Date: ${currentDate}`]);  // Add the date to the first row
+
             // Create a worksheet from the processed data
             const ws = XLSX.utils.aoa_to_sheet(dataWithOptionalActions);
 
@@ -87,7 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Create a download link and trigger the download
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'company_inventory.xlsx';
+            
+            // Include the current date in the filename
+            a.download = `company_inventory_${currentDate}.xlsx`; 
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
