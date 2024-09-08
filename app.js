@@ -1,5 +1,7 @@
 const apiUrl = 'https://francisco-inventory.onrender.com';
 let currentProductId = null;
+let currentSortColumn = 'name'; // Default sort column
+let sortDirection = 'asc'; // Default sort direction
 
 document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('role');
@@ -8,13 +10,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fetch products and display them
-    async function fetchProducts() {
+    async function fetchProducts(sortBy = 'name', direction = 'asc') {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(`${apiUrl}/products`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const products = await response.json();
+            
+            // Sort products if needed
+            if (sortBy) {
+                products.sort((a, b) => {
+                    const aValue = a[sortBy];
+                    const bValue = b[sortBy];
+                    
+                    if (typeof aValue === 'string') {
+                        return direction === 'asc' 
+                            ? aValue.localeCompare(bValue) 
+                            : bValue.localeCompare(aValue);
+                    } else {
+                        return direction === 'asc' 
+                            ? aValue - bValue 
+                            : bValue - aValue;
+                    }
+                });
+            }
+
             const productList = document.getElementById('product-list');
             const grandTotalElement = document.getElementById('grand-total');
             let grandTotal = 0;
@@ -40,9 +61,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             grandTotalElement.textContent = `$${grandTotal.toFixed(2)}`;
+
+            // Update sort arrow
+            updateSortArrows();
         } catch (error) {
             console.error('Error fetching products:', error);
         }
+    }
+
+    function updateSortArrows() {
+        // Reset arrows
+        document.querySelectorAll('.sort-arrow').forEach(arrow => {
+            arrow.classList.remove('asc', 'desc');
+        });
+
+        // Update arrow for the current column
+        const arrow = document.getElementById(`${currentSortColumn}-arrow`);
+        arrow.classList.add(sortDirection);
     }
 
     // Handle form submission to add or update products
@@ -75,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`Failed to ${currentProductId ? 'update' : 'add'} product`);
 
             resetForm();
-            fetchProducts();
+            fetchProducts(currentSortColumn, sortDirection);
         } catch (error) {
             console.error(`Error ${currentProductId ? 'updating' : 'adding'} product:`, error);
         }
@@ -127,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) throw new Error('Failed to delete product');
 
-            fetchProducts();
+            fetchProducts(currentSortColumn, sortDirection);
         } catch (error) {
             console.error('Error deleting product:', error);
         }
@@ -139,6 +174,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'login.html';
     });
 
-    // Initial fetch of products when the page loads
-    fetchProducts();
+    // Handle column sorting
+    document.querySelectorAll('th[data-sort]').forEach(header => {
+        header.addEventListener('click', () => {
+            const sortBy = header.getAttribute('data-sort');
+            sortDirection = (currentSortColumn === sortBy && sortDirection === 'asc') ? 'desc' : 'asc';
+            currentSortColumn = sortBy;
+
+            fetchProducts(sortBy, sortDirection);
+        });
+    });
+
+    // Initialize by sorting products by name
+    fetchProducts(currentSortColumn, sortDirection);
 });

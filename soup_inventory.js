@@ -17,16 +17,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const apiUrl = 'https://francisco-inventory.onrender.com';
     let currentSoupId = null;
+    let currentSortColumn = 'name'; // Default sort column
+    let sortDirection = 'asc'; // Default sort direction
 
-    // Fetch soups and display them
-    async function fetchSoups() {
+    fetchSoups(currentSortColumn, sortDirection);
+    setupFormHandlers();
+    setupLogoutHandler();
+    setupSorting();
+
+    function getAuthHeader() {
+        const token = localStorage.getItem('token');
+        return token ? { 'Authorization': `Bearer ${token}` } : {};
+    }
+
+    async function fetchSoups(sortBy = 'name', direction = 'asc') {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${apiUrl}/soups`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const response = await fetch(`${apiUrl}/soups`, { headers: getAuthHeader() });
             if (!response.ok) throw new Error('Network response was not ok');
             const soups = await response.json();
+
+            // Sort soups if needed
+            if (sortBy) {
+                soups.sort((a, b) => {
+                    const aValue = a[sortBy];
+                    const bValue = b[sortBy];
+
+                    if (typeof aValue === 'string') {
+                        return direction === 'asc' 
+                            ? aValue.localeCompare(bValue) 
+                            : bValue.localeCompare(aValue);
+                    } else {
+                        return direction === 'asc' 
+                            ? aValue - bValue 
+                            : bValue - aValue;
+                    }
+                });
+            }
+
             const soupList = document.getElementById('soup-list');
             const grandTotalElement = document.getElementById('grand-total');
             let grandTotal = 0;
@@ -52,48 +79,100 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             grandTotalElement.textContent = `$${grandTotal.toFixed(2)}`;
+            
+            // Update sort arrow
+            updateSortArrows();
         } catch (error) {
             console.error('Error fetching soups:', error);
         }
     }
 
-    // Handle form submission to add or update soups
-    document.getElementById('soup-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const name = document.getElementById('name').value.trim();
-        const price = parseFloat(document.getElementById('price').value);
-        const quantity = parseInt(document.getElementById('quantity').value);
+    function setupFormHandlers() {
+        document.getElementById('soup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const price = parseFloat(document.getElementById('price').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
 
-        if (!name || price < 0 || quantity < 0) {
-            alert('Please enter valid soup details.');
-            return;
-        }
+            if (!name || price < 0 || quantity < 0) {
+                alert('Please enter valid soup details.');
+                return;
+            }
 
-        try {
-            const token = localStorage.getItem('token');
-            const method = currentSoupId ? 'PUT' : 'POST';
-            const url = currentSoupId ? `${apiUrl}/soups/${currentSoupId}` : `${apiUrl}/soups`;
+            try {
+                const method = currentSoupId ? 'PUT' : 'POST';
+                const url = currentSoupId ? `${apiUrl}/soups/${currentSoupId}` : `${apiUrl}/soups`;
 
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name, price, quantity })
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeader()
+                    },
+                    body: JSON.stringify({ name, price, quantity })
+                });
+
+                if (!response.ok) throw new Error(`Failed to ${currentSoupId ? 'update' : 'add'} soup`);
+
+                resetForm();
+                fetchSoups(currentSortColumn, sortDirection);
+            } catch (error) {
+                console.error(`Error ${currentSoupId ? 'updating' : 'adding'} soup:`, error);
+            }
+        });
+
+        document.getElementById('update-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('soup-form').dispatchEvent(new Event('submit'));
+        });
+
+        document.getElementById('cancel-btn').addEventListener('click', resetForm);
+    }
+
+    function setupLogoutHandler() {
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        });
+    }
+
+    function setupSorting() {
+        document.querySelectorAll('th[data-sort]').forEach(header => {
+            header.addEventListener('click', () => {
+                const sortBy = header.getAttribute('data-sort');
+                sortDirection = (currentSortColumn === sortBy && sortDirection === 'asc') ? 'desc' : 'asc';
+                currentSortColumn = sortBy;
+
+                fetchSoups(sortBy, sortDirection);
             });
+        });
+    }
 
-            if (!response.ok) throw new Error(`Failed to ${currentSoupId ? 'update' : 'add'} soup`);
+    function updateSortArrows() {
+        // Reset arrows
+        document.querySelectorAll('.sort-arrow').forEach(arrow => {
+            arrow.classList.remove('asc', 'desc');
+        });
 
-            resetForm();
-            fetchSoups();
-        } catch (error) {
-            console.error(`Error ${currentSoupId ? 'updating' : 'adding'} soup:`, error);
+        // Update arrow for the current column
+        const arrow = document.getElementById(`${currentSortColumn}-arrow`);
+        if (arrow) {
+            arrow.classList.add(sortDirection);
         }
-    });
+    }
 
-    // Start editing a soup
+    function resetForm() {
+        currentSoupId = null;
+        document.getElementById('name').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('quantity').value = '';
+
+        document.getElementById('add-btn').style.display = 'inline-block';
+        document.getElementById('update-btn').style.display = 'none';
+        document.getElementById('cancel-btn').style.display = 'none';
+    }
+
     window.startEditSoup = function(id, name, price, quantity) {
         if (role === 'readonly') return; // Prevent editing for readonly users
         currentSoupId = id;
@@ -109,51 +188,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('name').setSelectionRange(0, 0);
     }
 
-    // Ensure the form will submit when clicking the 'Update' button
-    document.getElementById('update-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        document.getElementById('soup-form').dispatchEvent(new Event('submit'));
-    });
-
-    // Reset form fields and buttons
-    function resetForm() {
-        currentSoupId = null;
-        document.getElementById('name').value = '';
-        document.getElementById('price').value = '';
-        document.getElementById('quantity').value = '';
-
-        document.getElementById('add-btn').style.display = 'inline-block';
-        document.getElementById('update-btn').style.display = 'none';
-        document.getElementById('cancel-btn').style.display = 'none';
-    }
-
-    // Handle cancel button click
-    document.getElementById('cancel-btn').addEventListener('click', resetForm);
-
-    // Delete a soup
     window.deleteSoup = async function(id) {
         if (role === 'readonly') return; // Prevent deleting for readonly users
         try {
-            const token = localStorage.getItem('token');
             const response = await fetch(`${apiUrl}/soups/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: getAuthHeader()
             });
 
             if (!response.ok) throw new Error('Failed to delete soup');
 
-            fetchSoups();
+            fetchSoups(currentSortColumn, sortDirection);
         } catch (error) {
             console.error('Error deleting soup:', error);
         }
     }
-
-    // Handle logout
-    document.getElementById('logout-btn').addEventListener('click', () => {
-        localStorage.removeItem('token');
-        window.location.href = 'login.html';
-    });
-
-    // Initial fetch of soups when the page loads
-    fetchSoups();
 });

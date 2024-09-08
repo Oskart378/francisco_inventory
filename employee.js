@@ -7,21 +7,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const apiUrl = 'https://francisco-inventory.onrender.com'; // Update to your API endpoint
     let currentEmployeeId = null;
+    let currentSortColumn = 'name'; // Default sort column
+    let sortDirection = 'asc'; // Default sort direction
 
-    fetchEmployees();
+    fetchEmployees(currentSortColumn, sortDirection);
     setupFormHandlers();
     setupLogoutHandler(); // Add this function
+    setupSorting(); // Add this function
 
     function getAuthHeader() {
         const token = localStorage.getItem('token');
         return token ? { 'Authorization': `Bearer ${token}` } : {};
     }
 
-    async function fetchEmployees() {
+    async function fetchEmployees(sortBy = 'name', direction = 'asc') {
         try {
             const response = await fetch(`${apiUrl}/employees`, { headers: getAuthHeader() });
             if (!response.ok) throw new Error('Network response was not ok');
             const employees = await response.json();
+            
+            // Sort employees if needed
+            if (sortBy) {
+                employees.sort((a, b) => {
+                    const aValue = a[sortBy];
+                    const bValue = b[sortBy];
+                    
+                    if (typeof aValue === 'string') {
+                        return direction === 'asc' 
+                            ? aValue.localeCompare(bValue) 
+                            : bValue.localeCompare(aValue);
+                    } else {
+                        return direction === 'asc' 
+                            ? aValue - bValue 
+                            : bValue - aValue;
+                    }
+                });
+            }
+
             const employeeList = document.getElementById('employee-list');
             const totalPayElement = document.getElementById('total-pay');
             let totalPay = 0;
@@ -44,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             totalPayElement.textContent = `$${totalPay.toFixed(2)}`;
+            
+            // Update sort arrow
+            updateSortArrows();
         } catch (error) {
             console.error('Error fetching employees:', error);
         }
@@ -84,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) throw new Error(`Failed to ${currentEmployeeId ? 'update' : 'add'} employee`);
 
                 resetForm();
-                fetchEmployees();
+                fetchEmployees(currentSortColumn, sortDirection);
             } catch (error) {
                 console.error(`Error ${currentEmployeeId ? 'updating' : 'adding'} employee:`, error);
             }
@@ -105,6 +130,29 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('role'); // Optional: remove role from localStorage
             window.location.href = 'login.html'; // Redirect to login page or home page
         });
+    }
+
+    function setupSorting() {
+        document.querySelectorAll('th[data-sort]').forEach(header => {
+            header.addEventListener('click', () => {
+                const sortBy = header.getAttribute('data-sort');
+                sortDirection = (currentSortColumn === sortBy && sortDirection === 'asc') ? 'desc' : 'asc';
+                currentSortColumn = sortBy;
+
+                fetchEmployees(sortBy, sortDirection);
+            });
+        });
+    }
+
+    function updateSortArrows() {
+        // Reset arrows
+        document.querySelectorAll('.sort-arrow').forEach(arrow => {
+            arrow.classList.remove('asc', 'desc');
+        });
+
+        // Update arrow for the current column
+        const arrow = document.getElementById(`${currentSortColumn}-arrow`);
+        arrow.classList.add(sortDirection);
     }
 
     window.startEditEmployee = function(id, name, weeklyPay) {
@@ -139,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) throw new Error('Failed to delete employee');
 
-            fetchEmployees();
+            fetchEmployees(currentSortColumn, sortDirection);
         } catch (error) {
             console.error('Error deleting employee:', error);
         }
