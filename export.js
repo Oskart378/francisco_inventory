@@ -26,11 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const table = document.querySelector('table');
             const rows = Array.from(table.querySelectorAll('tr'));
 
-            // Create a new array to hold table data without the Actions column
-            const dataWithoutActions = rows.map(row => {
+            // Identify the Actions column index
+            const headers = Array.from(rows[0].querySelectorAll('th'));
+            const actionsColumnIndex = headers.findIndex(header => header.textContent.trim().toLowerCase() === 'actions');
+
+            // Create a new array to hold table data, conditionally removing the Actions column
+            const dataWithOptionalActions = rows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
-                // Remove the last cell (Actions column) if it exists
-                cells.pop();
+                if (actionsColumnIndex !== -1) {
+                    // Remove the Actions column if it exists
+                    cells.splice(actionsColumnIndex, 1);
+                }
                 return cells.map(cell => cell.textContent.trim());
             });
 
@@ -39,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const grandTotal = grandTotalElement ? grandTotalElement.textContent.trim() : '$0.00';
 
             // Create a worksheet from the processed data
-            const ws = XLSX.utils.aoa_to_sheet(dataWithoutActions);
+            const ws = XLSX.utils.aoa_to_sheet(dataWithOptionalActions);
 
             // Set column widths
             ws['!cols'] = [
@@ -47,10 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 { width: 15 }, // Adjust width for the Price column
                 { width: 10 }, // Adjust width for the Quantity column
                 { width: 15 }  // Adjust width for the Total column
+                // Adjust or add more widths as needed
             ];
 
             // Add "Grand Total" row to the worksheet
-            const totalRowIndex = dataWithoutActions.length + 1; // Add one for the grand total row
+            const totalRowIndex = dataWithOptionalActions.length + 1; // Add one for the grand total row
 
             ws[`A${totalRowIndex + 1}`] = {
                 v: 'Grand Total:',
