@@ -92,11 +92,35 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             
             const name = document.getElementById('name').value.trim();
-            const price = parseFloat(document.getElementById('price').value);
-            const quantity = parseInt(document.getElementById('quantity').value);
+            const priceValue = document.getElementById('price').value.trim();
+            const quantityValue = document.getElementById('quantity').value.trim();
 
-            if (!name || price < 0 || quantity < 0) {
-                alert('Please enter valid soup details.');
+            // Enhanced Validation
+            if (!name) {
+                alert('Name cannot be empty.');
+                return;
+            }
+
+            if (priceValue === '') {
+                alert('Price cannot be empty.');
+                return;
+            }
+
+            if (quantityValue === '') {
+                alert('Quantity cannot be empty.');
+                return;
+            }
+
+            const price = parseFloat(priceValue);
+            const quantity = parseInt(quantityValue, 10);
+
+            if (isNaN(price) || price < 0) {
+                alert('Please enter a valid price (a non-negative number).');
+                return;
+            }
+
+            if (!Number.isInteger(quantity) || quantity < 0) {
+                alert('Please enter a valid quantity (a non-negative integer).');
                 return;
             }
 

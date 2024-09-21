@@ -77,7 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update arrow for the current column
         const arrow = document.getElementById(`${currentSortColumn}-arrow`);
-        arrow.classList.add(sortDirection);
+        if (arrow) {
+            arrow.classList.add(sortDirection);
+        }
     }
 
     // Handle form submission to add or update products
@@ -85,11 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         const name = document.getElementById('name').value.trim();
-        const price = parseFloat(document.getElementById('price').value);
-        const quantity = parseInt(document.getElementById('quantity').value);
+        const price = document.getElementById('price').value;
+        const quantity = document.getElementById('quantity').value;
 
-        if (!name || price < 0 || quantity < 0) {
-            alert('Please enter valid product details.');
+        // Input validation
+        if (!name || isNaN(price) || price <= 0 || isNaN(quantity) || quantity <= 0) {
+            alert('Please enter a valid product name, price (greater than 0), and quantity (greater than 0).');
             return;
         }
 
@@ -104,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name, price, quantity })
+                body: JSON.stringify({ name, price: parseFloat(price), quantity: parseInt(quantity) })
             });
 
             if (!response.ok) throw new Error(`Failed to ${currentProductId ? 'update' : 'add'} product`);
@@ -127,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('update-btn').style.display = 'inline-block';
         document.getElementById('cancel-btn').style.display = 'inline-block';
 
+        // Focus and place cursor at the beginning of the name field
         document.getElementById('name').focus();
         document.getElementById('name').setSelectionRange(0, 0);
     }
@@ -147,6 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('add-btn').style.display = 'inline-block';
         document.getElementById('update-btn').style.display = 'none';
         document.getElementById('cancel-btn').style.display = 'none';
+
+        // Refocus to the name field after resetting the form
+        document.getElementById('name').focus();
     }
 
     document.getElementById('cancel-btn').addEventListener('click', resetForm);
